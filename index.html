@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>花镜复刻｜在线参数化制版</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --pink: #e8c8d8;
+  --dark-pink: #6b485c;
+}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+</style>
+</head>
+<body class="bg-white max-w-6xl mx-auto p-5">
+<h1 class="text-3xl font-bold text-[#6b485c] text-center mb-6">花镜 · 在线参数化制版</h1>
+
+<!-- 导航标签 -->
+<div class="flex gap-2 mb-6 border-b">
+  <button class="tab-btn px-4 py-2 rounded-t-lg bg-[#e8c8d8]" data-tab="pet">宠物服装制版</button>
+  <button class="tab-btn px-4 py-2 rounded-t-lg bg-gray-100" data-tab="bjd">BJD娃衣制版</button>
+  <button class="tab-btn px-4 py-2 rounded-t-lg bg-gray-100" data-tab="women">女装制版</button>
+</div>
+
+<!-- 宠物板块 -->
+<div id="pet" class="tab-content active">
+  <div class="flex flex-wrap gap-6">
+    <div class="w-full md:w-72 p-4 bg-pink-50 rounded-xl border">
+      <h3 class="font-semibold mb-3">宠物背心｜输入尺寸(cm)</h3>
+      <div class="mb-2">
+        <label>胸围</label>
+        <input id="petBust" value="32" class="w-full border rounded p-1 mt-1">
+      </div>
+      <div class="mb-2">
+        <label>颈围</label>
+        <input id="petNeck" value="22" class="w-full border rounded p-1 mt-1">
+      </div>
+      <div class="mb-2">
+        <label>背长</label>
+        <input id="petBack" value="20" class="w-full border rounded p-1 mt-1">
+      </div>
+      <button onclick="drawPet()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
+      <button onclick="exportPetPdf()" class="w-full mt-2 bg-[#6b485c] text-white py-2 rounded">导出PDF纸样</button>
+    </div>
+    <div>
+      <canvas id="petCanvas" width="600" height="500" class="border-2 border-pink-200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- BJD板块 -->
+<div id="bjd" class="tab-content">
+  <div class="flex flex-wrap gap-6">
+    <div class="w-full md:w-72 p-4 bg-pink-50 rounded-xl border">
+      <h3 class="font-semibold mb-3">BJD连衣裙｜输入尺寸(cm)</h3>
+      <div class="mb-2">
+        <label>娃胸围</label>
+        <input id="bjdBust" value="14" class="w-full border rounded p-1 mt-1">
+      </div>
+      <div class="mb-2">
+        <label>娃腰围</label>
+        <input id="bjdWaist" value="11" class="w-full border rounded p-1 mt-1">
+      </div>
+      <div class="mb-2">
+        <label>衣长</label>
+        <input id="bjdLen" value="16" class="w-full border rounded p-1 mt-1">
+      </div>
+      <button onclick="drawBjd()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
+      <button onclick="exportBjdPdf()" class="w-full mt-2 bg-[#6b485c] text-white py-2 rounded">导出PDF纸样</button>
+    </div>
+    <div>
+      <canvas id="bjdCanvas" width="600" height="500" class="border-2 border-pink-200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- 女装板块 -->
+<div id="women" class="tab-content">
+  <div class="flex flex-wrap gap-6">
+    <div class="w-full md:w-72 p-4 bg-pink-50 rounded-xl border">
+      <h3 class="font-semibold mb-3">女装基础上衣｜输入尺寸(cm)</h3>
+      <div class="mb-2">
+        <label>胸围</label>
+        <input id="wBust" value="84" class="w-full border rounded p-1 mt-1">
+      </div>
+      <div class="mb-2">
+        <label>肩宽</label>
+        <input id="wShoulder" value="38" class="w-full border rounded p-1 mt-1">
+      </div>
+      <div class="mb-2">
+        <label>衣长</label>
+        <input id="wLen" value="55" class="w-full border rounded p-1 mt-1">
+      </div>
+      <button onclick="drawWomen()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
+      <button onclick="exportWPdf()" class="w-full mt-2 bg-[#6b485c] text-white py-2 rounded">导出PDF纸样</button>
+    </div>
+    <div>
+      <canvas id="wCanvas" width="600" height="500" class="border-2 border-pink-200"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+// 标签切换
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>{
+        b.classList.remove('bg-[#e8c8d8]');
+        b.classList.add('bg-gray-100');
+    });
+    btn.classList.add('bg-[#e8c8d8]');
+    const tabId = btn.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+  }
+})
+
+//宠物绘图
+const petCanvas = document.getElementById("petCanvas");
+const petCtx = petCanvas.getContext("2d");
+function drawPet(){
+  const bust = Number(document.getElementById('petBust').value);
+  const neck = Number(document.getElementById('petNeck').value);
+  const back = Number(document.getElementById('petBack').value);
+  petCtx.clearRect(0,0,petCanvas.width,petCanvas.height);
+  petCtx.strokeStyle="#b06088";
+  petCtx.lineWidth=2;
+  petCtx.beginPath();
+  const s = 7;
+  petCtx.moveTo(100,70);
+  petCtx.bezierCurveTo(140,50, 200,52, 240,75);
+  petCtx.bezierCurveTo(280,130,280,210,240,270);
+  petCtx.bezierCurveTo(180,310,120,300,100,250);
+  petCtx.closePath();
+  petCtx.stroke();
+}
+function exportPetPdf(){
+  const pdf = new jsPDF('p','mm','a4');
+  const img = petCanvas.toDataURL('image/png');
+  pdf.addImage(img, 'PNG',10,10,190,160);
+  pdf.save("宠物背心纸样.pdf");
+}
+
+//BJD绘图
+const bjdCanvas = document.getElementById("bjdCanvas");
+const bjdCtx = bjdCanvas.getContext("2d");
+function drawBjd(){
+  const bust = Number(document.getElementById('bjdBust').value);
+  const waist = Number(document.getElementById('bjdWaist').value);
+  const len = Number(document.getElementById('bjdLen').value);
+  bjdCtx.clearRect(0,0,bjdCanvas.width,bjdCanvas.height);
+  bjdCtx.strokeStyle="#884470";
+  bjdCtx.lineWidth=2;
+  bjdCtx.beginPath();
+  bjdCtx.moveTo(120,60);
+  bjdCtx.lineTo(220,70);
+  bjdCtx.lineTo(230,260);
+  bjdCtx.lineTo(110,250);
+  bjdCtx.closePath();
+  bjdCtx.stroke();
+}
+function exportBjdPdf(){
+  const pdf = new jsPDF('p','mm','a4');
+  const img = bjdCanvas.toDataURL('image/png');
+  pdf.addImage(img, 'PNG',10,10,190,160);
+  pdf.save("BJD连衣裙纸样.pdf");
+}
+
+//女装绘图
+const wCanvas = document.getElementById("wCanvas");
+const wCtx = wCanvas.getContext("2d");
+function drawWomen(){
+  const bust = Number(document.getElementById('wBust').value);
+  const shoulder = Number(document.getElementById('wShoulder').value);
+  const len = Number(document.getElementById('wLen').value);
+  wCtx.clearRect(0,0,wCanvas.width,wCanvas.height);
+  wCtx.strokeStyle="#6b485c";
+  wCtx.lineWidth=2;
+  wCtx.beginPath();
+  wCtx.moveTo(100,80);
+  wCtx.lineTo(260,85);
+  wCtx.lineTo(270,320);
+  wCtx.lineTo(90,310);
+  wCtx.closePath();
+  wCtx.stroke();
+}
+function exportWPdf(){
+  const pdf = new jsPDF('p','mm','a4');
+  const img = wCanvas.toDataURL('image/png');
+  pdf.addImage(img, 'PNG',10,10,190,160);
+  pdf.save("女装上衣服纸样.pdf");
+}
+
+window.onload = function(){drawPet();drawBjd();drawWomen();}
+</script>
+</body>
+</html>
