@@ -1,116 +1,116 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>花镜复刻｜在线参数化制版</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root{
-  --pink: #e8c8d8;
-  --dark-pink: #6b485c;
+<！doctype>超文本标记语言>超文本标记语言>
+<超文本标记语言超文本标记语言 朗="zh-CN">html lang="zh-CN">
+<头>头>
+<元 字符集="UTF-8">元charset="UTF-8">
+<元名称=“视口”内容=“宽度=设备宽度，初始比例=1.0”>元名称="视口"内容="宽度=设备宽度，初始比例=1.0">
+<标题>花镜复刻|在线参数化制版</标题>标题>花镜复刻|在线参数化制版</标题>
+<脚本 src="https://cdn.tailwindcss.com"></脚本>script src="https://cdn.tailwindcss.com"></脚本>
+<脚本 src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></脚本>script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></脚本>
+<风格>风格>
+：根{根{
+--粉红色：#e8c8d8；--粉红色：#e8c8d8；
+--深粉色：#6b485c；--深粉色：#6b485c；
 }
-.tab-content{display:none;}
-.tab-content.active{display:block;}
-</style>
-</head>
-<body class="bg-white max-w-6xl mx-auto p-5">
-<h1 class="text-3xl font-bold text-[#6b485c] text-center mb-6">花镜 · 在线参数化制版</h1>
+.tab-content{显示：无；}tab-content{显示：没有一个；}
+.tab-content。活跃的{显示：块；}选项卡内容。活跃的{显示：块；}
+</风格>风格>
+</头>头>
+<身体 班级="bg-white max-w-6xl mx-auto P-5">车身class="bg-white max-w-6xl mx-auto P-5">
+<H1级="text-3xl font-bold text-[#6b485c]text-center mb-6">花镜·在线参数化制版</H1>H1 class="text-3xl font-bold text-[#6b485c]text-center mb-6">花镜·在线参数化制版</H1>
 
-<!-- 导航标签 -->
-<div class="flex gap-2 mb-6 border-b">
-  <button class="tab-btn px-4 py-2 rounded-t-lg bg-[#e8c8d8]" data-tab="pet">宠物服装制版</button>
-  <button class="tab-btn px-4 py-2 rounded-t-lg bg-gray-100" data-tab="bjd">BJD娃衣制版</button>
-  <button class="tab-btn px-4 py-2 rounded-t-lg bg-gray-100" data-tab="women">女装制版</button>
-</div>
+<! -- 导航标签 -->
+<div 班级="弹性间隙-2mb-6边框-b">div class="flex gap-2mb-6 border-b">
+<按钮 班级="tab-btn px-4py-2舍入-t-lg bg-[#e8c8d8]"数据选项卡="宠物">宠物服装制版</按钮><按钮 班级="tab-btn px-4py-2舍入-t-lg bg-[#e8c8d8]" 数据选项卡="宠物">宠物服装制版</按钮>
+<按钮 班级="tab-btn px-4py-2圆角t-lg bg-灰色-100"数据选项卡="bjd">BJD娃衣制版</按钮><按钮 班级="tab-btn px-4py-2舍入-t-lg bg-灰色-100" 数据选项卡="bjd">BJD娃衣制版</按钮>
+<按钮 班级="tab-btn px-4py-2舍入-t-lg bg-灰色-100"数据选项卡="妇女">女装版</按钮><按钮 班级="tab-btn px-4py-2舍入-t-lg bg-灰色-100" 数据选项卡="妇女">女装版</按钮>
+</div>div>
 
-<!-- 宠物板块 -->
-<div id="pet" class="tab-content active">
-  <div class="flex flex-wrap gap-6">
-    <div class="w-full md:w-72 p-4 bg-pink-50 rounded-xl border">
-      <h3 class="font-semibold mb-3">宠物背心｜输入尺寸(cm)</h3>
-      <div class="mb-2">
-        <label>胸围</label>
-        <input id="petBust" value="32" class="w-full border rounded p-1 mt-1">
+<! -- 宠物板块 -->
+<div 身份标识="宠物"班级="选项卡内容激活">div id="pet"class="tab-content active">
+<div 班级="flex flex-wrap间隙-6"><div 班级="柔性柔性缠绕间隙-6">
+<div 班级="w-full md:w-72p-4bg-pink-50圆角-xl边框"><div 班级="w-全md:w-72p-4bg-pink-50圆角-xl边框">
+<H3级="font-semibold MB-3">宠物背心|输入尺寸(cm)</H3><H3 班级="font-semibold MB-3">宠物背心｜输入尺寸(cm)</H3>
+<div 班级="MB-2"><div 班级="MB-2">
+<标签>胸围</标签><标签>胸围</标签>
+<输入 身份标识="petBust"价值="32"班级="w-满边框舍入p-1MT-1"><输入 身份标识="petBust" 价值="32" 班级="w-满边框圆角p-1MT-1">
+</div></div>
+      <div 班级="MB-2">
+        <标签>颈围</标签>
+        <输入 身份标识="petNeck" 价值="22" 班级="w-满边框圆角p-1MT-1">
       </div>
-      <div class="mb-2">
-        <label>颈围</label>
-        <input id="petNeck" value="22" class="w-full border rounded p-1 mt-1">
+      <div 班级="MB-2">
+        <标签>背长</标签>
+        <输入 身份标识="petBack" 价值="20" 班级="w-满边框圆角p-1MT-1">
       </div>
-      <div class="mb-2">
-        <label>背长</label>
-        <input id="petBack" value="20" class="w-full border rounded p-1 mt-1">
-      </div>
-      <button onclick="drawPet()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
-      <button onclick="exportPetPdf()" class="w-full mt-2 bg-[#6b485c] text-white py-2 rounded">导出PDF纸样</button>
+      <按钮 onClick="drawPet()" 班级="w-全MT-3bg-pink-300py-2圆角">更新预览</按钮>
+      <按钮 onClick="exportPetPdf()" 班级="w-全MT-2bg-[#6b485c]文本-白色py-2圆角">导出PDF纸样</按钮>
     </div>
     <div>
-      <canvas id="petCanvas" width="600" height="500" class="border-2 border-pink-200"></canvas>
+      <帆布 身份标识="petCanvas" 宽度="600" 高度="500" 班级="border-2 border-pink-200"></帆布>
     </div>
   </div>
 </div>
 
-<!-- BJD板块 -->
-<div id="bjd" class="tab-content">
-  <div class="flex flex-wrap gap-6">
-    <div class="w-full md:w-72 p-4 bg-pink-50 rounded-xl border">
-      <h3 class="font-semibold mb-3">BJD连衣裙｜输入尺寸(cm)</h3>
-      <div class="mb-2">
-        <label>娃胸围</label>
-        <input id="bjdBust" value="14" class="w-full border rounded p-1 mt-1">
+<！--BJD板块-->
+<div 身份标识="bjd" 班级="tab-content">
+  <div 班级="柔性柔性缠绕间隙-6">
+    <div 班级="w-全md:w-72p-4bg-pink-50圆角-xl边框">
+      <H3 班级="font-semibold MB-3">BJD连衣裙|输入尺寸(cm)</H3>
+      <div 班级="MB-2">
+        <标签>娃胸围</标签>
+        <输入 身份标识="bjdBust" 价值="14" 班级="w-满边框圆角p-1MT-1">
       </div>
-      <div class="mb-2">
-        <label>娃腰围</label>
-        <input id="bjdWaist" value="11" class="w-full border rounded p-1 mt-1">
+      <div 班级="MB-2">
+        <标签>娃腰围</标签>
+        <输入 身份标识="bjdWaist" 价值="11" 班级="w-满边框圆角p-1MT-1">
       </div>
-      <div class="mb-2">
-        <label>衣长</label>
-        <input id="bjdLen" value="16" class="w-full border rounded p-1 mt-1">
+      <div 班级="MB-2">
+        <标签>衣长</标签>
+        <输入 身份标识="bjdLen" 价值="16" 班级="w-满边框圆角p-1MT-1">
       </div>
-      <button onclick="drawBjd()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
-      <button onclick="exportBjdPdf()" class="w-full mt-2 bg-[#6b485c] text-white py-2 rounded">导出PDF纸样</button>
+      <按钮 onClick="drawBjd()" 班级="w-全MT-3bg-pink-300py-2圆角">更新预览</按钮>
+      <按钮 onClick="exportBjdPdf()" 班级="w-全MT-2bg-[#6b485c]文本-白色py-2圆角">导出PDF纸样</按钮>
     </div>
     <div>
-      <canvas id="bjdCanvas" width="600" height="500" class="border-2 border-pink-200"></canvas>
+      <帆布 身份标识="bjdCanvas" 宽度="600" 高度="500" 班级="border-2 border-pink-200"></帆布>
     </div>
   </div>
 </div>
 
-<!-- 女装板块 -->
-<div id="women" class="tab-content">
-  <div class="flex flex-wrap gap-6">
-    <div class="w-full md:w-72 p-4 bg-pink-50 rounded-xl border">
-      <h3 class="font-semibold mb-3">女装基础上衣｜输入尺寸(cm)</h3>
-      <div class="mb-2">
-        <label>胸围</label>
-        <input id="wBust" value="84" class="w-full border rounded p-1 mt-1">
+<! -- 女装板块 -->
+<div 身份标识="妇女" 班级="tab-content">
+  <div 班级="柔性柔性缠绕间隙-6">
+    <div 班级="w-全md:w-72p-4bg-pink-50圆角-xl边框">
+      <H3 班级="font-semibold MB-3">女装基础上衣｜输入尺寸(cm)</H3>
+      <div 班级="MB-2">
+        <标签>胸围</标签>
+        <输入 身份标识="wBust" 价值="84" 班级="w-满边框圆角p-1MT-1">
       </div>
-      <div class="mb-2">
-        <label>肩宽</label>
-        <input id="wShoulder" value="38" class="w-full border rounded p-1 mt-1">
+      <div 班级="MB-2">
+        <标签>肩宽</标签>
+</div>ID="wShoulder"value="38"class="w-满边框圆角p-1MT-1">
       </div>
-      <div class="mb-2">
-        <label>衣长</label>
-        <input id="wLen" value="55" class="w-full border rounded p-1 mt-1">
+div>div class="MB-2">
+        <标签>衣长</标签>
+        <输入 身份标识="WLEN" 价值="55" 班级="w-满边框圆角p-1MT-1">
       </div>
-      <button onclick="drawWomen()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
-      <button onclick="exportWPdf()" class="w-full mt-2 bg-[#6b485c] text-white py-2 rounded">导出PDF纸样</button>
+      <按钮 onClick="draw Women()" 班级="w-全MT-3bg-pink-300py-2圆角">更新预览</按钮>
+      <按钮 onClick="exportWPdf()" 班级="w-全MT-2bg-[#6b485c]文本-白色py-2圆角">导出PDF纸样</按钮>
     </div>
     <div>
-      <canvas id="wCanvas" width="600" height="500" class="border-2 border-pink-200"></canvas>
+      <帆布 身份标识="wCanvas" 宽度="600" 高度="500" 班级="border-2 border-pink-200"></帆布>
     </div>
   </div>
 </div>
 
-<script>
-const { jsPDF } = window.jspdf;
+<脚本>
+Const { JSPDF }=窗户.JSPDF;
 // 标签切换
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>{
-        b.classList.remove('bg-[#e8c8d8]');
-        b.classList.add('bg-gray-100');
+文件.querySelectorAll('.tab-btn').foreach(BTN=>{
+  BTN.onClick=()=>{
+    文件.querySelectorAll('.tab-btn').foreach(b=>{
+        b.classList.移除('bg-[#e8c8d8]');
+        b.classList.添加('BG-灰色-100');
     });
     btn.classList.add('bg-[#e8c8d8]');
     const tabId = btn.dataset.tab;
