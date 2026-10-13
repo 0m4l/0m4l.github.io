@@ -3,478 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FreeSewing风格 参数化制版｜宠物 / BJD / 女装纸样</title>
+<title>FreeSewing纸样生成器｜宠物·BJD·女装上衣</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root{
-  --primary: #6b21a8;
-  --pink: #e8c8d8;
-}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
-canvas{border:1px solid #ccc;background:#fff;}
-.help-tip{font-size:12px;color:#666}
+canvas{border:1px solid #666;background:#fff;max-width:100%;}
+.unit-note{color:#666;font-size:0.85rem}
 </style>
 </head>
-<body class="bg-gray-50 max-w-7xl mx-auto p-4 md:p-6">
-<h1 class="text-2xl font-bold text-[#6b21a8] mb-4 text-center">FreeSewing几何体系 参数化纸样生成器</h1>
+<body class="bg-gray-50 max-w-5xl mx-auto p-4">
+<h1 class="text-2xl font-bold text-purple-800 text-center my-4">FreeSewing 纸样生成器</h1>
 
-<!-- 全局设置 -->
 <div class="bg-white rounded-lg shadow p-4 mb-4">
-  <div class="flex flex-wrap gap-4 items-center">
-    <div>
-      <label class="font-medium">缝份：</label>
-      <input id="seamAllowance" type="number" value="1.5" step="0.1" class="w-16 border p-1">
-      <span>cm</span>
-    </div>
-    <div>
-      <label class="font-medium">单位：</label>
-      <select id="unitSelect" class="border p-1">
-        <option value="cm">厘米 cm</option>
-        <option value="inch">英寸 inch</option>
-      </select>
-    </div>
-    <button onclick="savePreset()" class="bg-purple-600 text-white px-3 py-1 rounded">保存当前尺寸</button>
-    <button onclick="loadPreset()" class="bg-purple-400 text-white px-3 py-1 rounded">读取尺寸</button>
+  <div class="flex gap-3 flex-wrap">
+    <button class="tab-btn px-4 py-2 rounded-lg bg-purple-200" data-tab="pet">宠物背心制版</button>
+    <button class="tab-btn px-4 py-2 rounded-lg bg-gray-200" data-tab="bjd">BJD连衣裙制版</button>
+    <button class="tab-btn px-4 py-2 rounded-lg bg-gray-200" data-tab="women">女装上衣原型制版</button>
   </div>
 </div>
 
-<!-- 分类标签 -->
-<div class="flex gap-2 mb-4">
-  <button class="tab-btn px-4 py-2 rounded-t-lg bg-[#e8c8d8]" data-tab="pet">宠物背心</button>
-  <button class="tab-btn px-4 py-2 rounded-t-lg bg-gray-200" data-tab="bjd">BJD连衣裙</button>
-  <button class="tab-btn px-4 py-2 rounded-t-lg bg-gray-200" data-tab="top">女装上衣原型</button>
+<!-- ========= 宠物背心 ========= -->
+<div class="tab-content active" id="pet">
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="text-xl mb-2">宠物背心 <span class="unit-note">单位：cm，自带1cm缝份</span></h2>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <label>胸围 <input id="petBust" value="32" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>颈围 <input id="petNeck" value="22" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>背长 <input id="petBack" value="20" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+    </div>
+    <button onclick="drawPet()" class="bg-purple-700 text-white px-4 py-2 rounded w-full mb-3">更新预览</button>
+    <canvas id="petCanvas" width="600" height="520"></canvas>
+    <button onclick="exportPetPdf()" class="bg-pink-200 px-4 py-2 rounded w-full mt-3">导出PDF纸样</button>
+  </div>
 </div>
 
-<!-- ========== 宠物背心（东华宠物原型公式 FreeSewing逻辑） ========== -->
-<div id="pet" class="tab-content active">
-<div class="grid md:grid-cols-2 gap-4">
-  <div class="bg-white p-4 rounded shadow">
-    <h3 class="font-bold mb-2">宠物背心 尺寸输入</h3>
-    <div class="mb-2">
-      <label>净胸围</label>
-      <input id="petChest" value="32" type="number" step="0.5" class="w-full border p-1">
-      <div class="help-tip">前腿后方最粗一圈（不加松量）</div>
+<!-- ========= BJD连衣裙 ========= -->
+<div class="tab-content" id="bjd">
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="text-xl mb-2">BJD连衣裙 <span class="unit-note">单位：cm，自带0.5cm缝份</span></h2>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <label>娃胸围 <input id="bjdBust" value="14" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>娃腰围 <input id="bjdWaist" value="11" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>衣长 <input id="bjdLen" value="16" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>肩宽 <input id="bjdShoulder" value="6.5" class="w-full border p-1 rounded" type="number" step="0.1"></label>
     </div>
-    <div class="mb-2">
-      <label>背长</label>
-      <input id="petBackLength" value="20" type="number" step="0.5" class="w-full border p-1">
-      <div class="help-tip">颈椎根部量至尾骨基部</div>
-    </div>
-    <div class="mb-2">
-      <label>颈围</label>
-      <input id="petNeck" value="22" type="number" step="0.5" class="w-full border p-1">
-      <div class="help-tip">脖子根部一圈</div>
-    </div>
-    <div class="mb-2">
-      <label>胸围松量 %</label>
-      <input id="petEase" value="14" type="number" step="1" class="w-full border p-1">
-      <div class="help-tip">推荐10~20%</div>
-    </div>
-    <button onclick="drawPet()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
-    <button onclick="exportPetPdf()" class="w-full mt-2 bg-[#6b21a8] text-white py-2 rounded">导出A4 PDF纸样</button>
+    <button onclick="drawBjd()" class="bg-purple-700 text-white px-4 py-2 rounded w-full mb-3">更新预览</button>
+    <canvas id="bjdCanvas" width="600" height="520"></canvas>
+    <button onclick="exportBjdPdf()" class="bg-pink-200 px-4 py-2 rounded w-full mt-3">导出PDF纸样</button>
   </div>
-  <div>
-    <canvas id="petCanvas" width="600" height="500"></canvas>
-    <p class="text-sm mt-1 text-gray-600">东华宠物原型｜包含领窝/袖窿贝塞尔曲线，缝份+纱向标注</p>
-  </div>
-</div>
 </div>
 
-<!-- ========== BJD连衣裙（比例缩放原型 FreeSewing逻辑） ========== -->
-<div id="bjd" class="tab-content">
-<div class="grid md:grid-cols-2 gap-4">
-  <div class="bg-white p-4 rounded shadow">
-    <h3 class="font-bold mb-2">BJD连衣裙 尺寸输入</h3>
-    <div class="mb-2">
-      <label>娃娃胸围</label>
-      <input id="bjdChest" value="14" type="number" step="0.1" class="w-full border p-1">
-      <div class="help-tip">娃娃胸部最大围度</div>
+<!-- ========= 女装上衣原型 ========= -->
+<div class="tab-content" id="women">
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="text-xl mb-2">女装基础上衣原型 <span class="unit-note">单位：cm，自带1cm缝份</span></h2>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <label>胸围 <input id="wBust" value="84" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>肩宽 <input id="wShoulder" value="38" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>衣长 <input id="wLen" value="55" class="w-full border p-1 rounded" type="number" step="0.1"></label>
+      <label>背长 <input id="wBackLen" value="38" class="w-full border p-1 rounded" type="number" step="0.1"></label>
     </div>
-    <div class="mb-2">
-      <label>娃娃腰围</label>
-      <input id="bjdWaist" value="11" type="number" step="0.1" class="w-full border p-1">
-    </div>
-    <div class="mb-2">
-      <label>娃娃身高</label>
-      <input id="bjdHeight" value="27" type="number" step="1" class="w-full border p-1">
-      <div class="help-tip">4分参考27cm，3分参考60cm</div>
-    </div>
-    <div class="mb-2">
-      <label>肩宽</label>
-      <input id="bjdShoulder" value="9" type="number" step="0.1" class="w-full border p-1">
-    </div>
-    <div class="mb-2">
-      <label>布料缩水率 %</label>
-      <input id="bjdShrink" value="6" type="number" step="1" class="w-full border p-1">
-      <div class="help-tip">棉5~8%，化纤1~2%</div>
-    </div>
-    <button onclick="drawBjd()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
-    <button onclick="exportBjdPdf()" class="w-full mt-2 bg-[#6b21a8] text-white py-2 rounded">导出A4 PDF纸样</button>
+    <button onclick="drawWomen()" class="bg-purple-700 text-white px-4 py-2 rounded w-full mb-3">更新预览</button>
+    <canvas id="womenCanvas" width="600" height="520"></canvas>
+    <button onclick="exportWomenPdf()" class="bg-pink-200 px-4 py-2 rounded w-full mt-3">导出PDF纸样</button>
   </div>
-  <div>
-    <canvas id="bjdCanvas" width="600" height="500"></canvas>
-    <p class="text-sm mt-1 text-gray-600">比例缩放原型｜腰省、领口、袖窿贝塞尔曲线</p>
-  </div>
-</div>
-</div>
-
-<!-- ========== 女装上衣原型（女装板型专利公式 FreeSewing逻辑） ========== -->
-<div id="top" class="tab-content">
-<div class="grid md:grid-cols-2 gap-4">
-  <div class="bg-white p-4 rounded shadow">
-    <h3 class="font-bold mb-2">女装上衣原型 尺寸输入</h3>
-    <div class="mb-2">
-      <label>净胸围</label>
-      <input id="wChest" value="84" type="number" step="0.5" class="w-full border p-1">
-      <div class="help-tip">人体净胸围</div>
-    </div>
-    <div class="mb-2">
-      <label>净腰围</label>
-      <input id="wWaist" value="68" type="number" step="0.5" class="w-full border p-1">
-    </div>
-    <div class="mb-2">
-      <label>肩宽</label>
-      <input id="wShoulder" value="38" type="number" step="0.5" class="w-full border p-1">
-      <div class="help-tip">左右肩尖距离</div>
-    </div>
-    <div class="mb-2">
-      <label>后颈点到腰长</label>
-      <input id="wHpsWaist" value="42" type="number" step="0.5" class="w-full border p-1">
-      <div class="help-tip">HPS至腰围垂直长度</div>
-    </div>
-    <div class="mb-2">
-      <label>胸省比例 %</label>
-      <input id="wBustDartRatio" value="60" type="number" step="1" class="w-full border p-1">
-      <div class="help-tip">推荐50~85%</div>
-    </div>
-    <button onclick="drawTop()" class="w-full mt-3 bg-pink-300 py-2 rounded">更新预览</button>
-    <button onclick="exportTopPdf()" class="w-full mt-2 bg-[#6b21a8] text-white py-2 rounded">导出A4 PDF纸样</button>
-  </div>
-  <div>
-    <canvas id="topCanvas" width="600" height="500"></canvas>
-    <p class="text-sm mt-1 text-gray-600">女装原型｜5:2肩斜、胸省、袖山袖窿切线贝塞尔</p>
-  </div>
-</div>
 </div>
 
 <script>
 const { jsPDF } = window.jspdf;
-//标签切换
+// 标签切换逻辑
 document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.onclick = ()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('bg-[#e8c8d8]','bg-gray-200'));
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.add('bg-gray-200'));
-    btn.classList.add('bg-[#e8c8d8]');
-    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('bg-purple-200'));
     document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
+    btn.classList.add('bg-purple-200');
+    document.getElementById(btn.dataset.tab).classList.add('active');
   }
 })
 
-//单位转换
-function getUnitScale(){
-  const unit = document.getElementById('unitSelect').value;
-  return unit === "inch" ? 2.54 : 1;
-}
-function getSeam(){
-  return Number(document.getElementById('seamAllowance').value)/getUnitScale();
-}
-
-//保存读取预设
-function savePreset(){
-  const data = {
-    petChest:document.getElementById('petChest').value,
-    petBackLength:document.getElementById('petBackLength').value,
-    petNeck:document.getElementById('petNeck').value,
-    petEase:document.getElementById('petEase').value,
-
-    bjdChest:document.getElementById('bjdChest').value,
-    bjdWaist:document.getElementById('bjdWaist').value,
-    bjdHeight:document.getElementById('bjdHeight').value,
-    bjdShoulder:document.getElementById('bjdShoulder').value,
-    bjdShrink:document.getElementById('bjdShrink').value,
-
-    wChest:document.getElementById('wChest').value,
-    wWaist:document.getElementById('wWaist').value,
-    wShoulder:document.getElementById('wShoulder').value,
-    wHpsWaist:document.getElementById('wHpsWaist').value,
-    wBustDartRatio:document.getElementById('wBustDartRatio').value,
-
-    seam:document.getElementById('seamAllowance').value,
-    unit:document.getElementById('unitSelect').value
+// 绘制标尺
+function drawRuler(ctx, w, h, scale=1){
+  ctx.strokeStyle="#aaa";
+  ctx.font="10px sans-serif";
+  //底部标尺
+  for(let x=0;x<=w;x+=20*scale){
+    ctx.beginPath();
+    ctx.moveTo(x,h);
+    ctx.lineTo(x,h-8);
+    ctx.stroke();
+    ctx.fillText((x/scale/10).toFixed(1),x+2,h-10);
   }
-  localStorage.setItem("patternPreset", JSON.stringify(data));
-  alert("✅尺寸已保存到浏览器本地");
-}
-function loadPreset(){
-  const raw = localStorage.getItem("patternPreset");
-  if(!raw){alert("没有保存的尺寸");return;}
-  const d = JSON.parse(raw);
-  document.getElementById('petChest').value = d.petChest;
-  document.getElementById('petBackLength').value = d.petBackLength;
-  document.getElementById('petNeck').value = d.petNeck;
-  document.getElementById('petEase').value = d.petEase;
-
-  document.getElementById('bjdChest').value = d.bjdChest;
-  document.getElementById('bjdWaist').value = d.bjdWaist;
-  document.getElementById('bjdHeight').value = d.bjdHeight;
-  document.getElementById('bjdShoulder').value = d.bjdShoulder;
-  document.getElementById('bjdShrink').value = d.bjdShrink;
-
-  document.getElementById('wChest').value = d.wChest;
-  document.getElementById('wWaist').value = d.wWaist;
-  document.getElementById('wShoulder').value = d.wShoulder;
-  document.getElementById('wHpsWaist').value = d.wHpsWaist;
-  document.getElementById('wBustDartRatio').value = d.wBustDartRatio;
-
-  document.getElementById('seamAllowance').value = d.seam;
-  document.getElementById('unitSelect').value = d.unit;
-  drawPet();drawBjd();drawTop();
-  alert("✅读取成功");
+  //左侧标尺
+  for(let y=0;y<=h;y+=20*scale){
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(8,y);
+    ctx.stroke();
+    ctx.fillText((y/scale/10).toFixed(1),10,y-2);
+  }
 }
 
-//绘制纱向箭头
-function drawGrain(ctx,x,y,len){
-  ctx.beginPath();
-  ctx.moveTo(x,y);
-  ctx.lineTo(x,y+len);
-  ctx.moveTo(x-4,y+len-6);
-  ctx.lineTo(x,y+len);
-  ctx.lineTo(x+4,y+len-6);
-  ctx.stroke();
-}
-
-// ========== 宠物背心绘图｜FreeSewing 东华宠物原型公式 ==========
+// ========== 宠物背心绘制（曲线原型+缝份） ==========
 function drawPet(){
-  const canvas = document.getElementById('petCanvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById("petCanvas");
+  const ctx = canvas.getContext("2d");
+  const bust = Number(document.getElementById("petBust").value);
+  const neck = Number(document.getElementById("petNeck").value);
+  const backLen = Number(document.getElementById("petBack").value);
+  const scale = 8;
+  const seam = 1*scale; //1cm缝份
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = 7;
-  const seam = getSeam();
+  drawRuler(ctx, canvas.width, canvas.height, scale);
 
-  const netChest = Number(document.getElementById('petChest').value)/getUnitScale();
-  const backLength = Number(document.getElementById('petBackLength').value)/getUnitScale();
-  const easePct = Number(document.getElementById('petEase').value);
-  const chest = netChest * (1 + easePct / 100);
+  const halfBust = bust/2 * scale;
+  const neckR = neck/(2*Math.PI)*scale;
+  const bl = backLen * scale;
+  const ox = 80, oy=80;
 
-  // 公式
-  const frontNeckDepth  = backLength * 0.10;
-  const frontNeckWidth  = netChest * 0.14 - 1.5;
-  const backNeckDepth   = backLength * 0.10 + 0.5;
-  const backNeckWidth   = netChest * 0.19 + 1.5;
-  const shoulderWidth   = netChest * 0.10 + 2;
-  const frontChestWidth = netChest * 0.15 - 1.75;
-  const armholeDepth    = netChest * 0.14 + 0.5;
-  const hemDrop         = backLength * 0.40;
-
-  const frontSlopeRad = (50 * Math.PI) / 180;
-  const backSlopeRad  = (35 * Math.PI) / 180;
-
-  //坐标点，模拟FreeSewing Point
-  const origin = {x:0,y:0};
-  const neckBack = {x:0, y: backNeckDepth * scale};
-  const shoulderBack = {
-    x: shoulderWidth * Math.cos(backSlopeRad) * scale,
-    y: (backNeckDepth - shoulderWidth * Math.sin(backSlopeRad)) * scale
-  };
-  const armholeBottom = {x: frontChestWidth * scale, y: (backNeckDepth + armholeDepth)*scale};
-  const hemBack = {x:0, y: backLength * scale};
-  const hemFront = {x: frontChestWidth * scale, y: (backLength - hemDrop)*scale};
-
-  // 绘制【后片】带缝份
-  ctx.save();
-  ctx.translate(60,60);
-  ctx.strokeStyle="#222";ctx.lineWidth=2;
-  const ctrlBackNeck = {x: backNeckWidth * 0.55*scale, y: backNeckDepth * 0.45*scale};
+  //净样线（实线）
+  ctx.strokeStyle="#000";
   ctx.beginPath();
-  ctx.moveTo(origin.x, origin.y);
-  ctx.quadraticCurveTo(ctrlBackNeck.x, ctrlBackNeck.y, neckBack.x, neckBack.y);
-  ctx.quadraticCurveTo(shoulderBack.x, shoulderBack.y, armholeBottom.x, armholeBottom.y);
-  ctx.lineTo(armholeBottom.x+seam*scale, armholeBottom.y);
-  ctx.lineTo(hemFront.x+seam*scale, hemFront.y+seam*scale);
-  ctx.lineTo(hemBack.x-seam*scale, hemBack.y+seam*scale);
+  ctx.moveTo(ox,oy);
+  ctx.bezierCurveTo(ox+neckR*0.8, oy-neckR, ox+halfBust-neckR*0.8, oy-neckR, ox+halfBust, oy);
+  ctx.lineTo(ox+halfBust, oy+bl);
+  ctx.bezierCurveTo(ox+halfBust, oy+bl+neckR, ox, oy+bl+neckR, ox, oy+bl);
   ctx.closePath();
   ctx.stroke();
-  ctx.fillText("宠物背心 · 后片", frontChestWidth*scale/2 - 30, backLength*scale/2);
-  drawGrain(ctx, frontChestWidth*scale/2,10,40);
-  ctx.fillText("纱向",frontChestWidth*scale/2 -12,55);
-  ctx.restore();
 
-  //绘制【前片】带缝份
-  ctx.save();
-  ctx.translate(320,60);
-  const ctrlFrontNeck = {x: frontNeckWidth *0.55*scale, y: (backNeckDepth + frontNeckDepth*0.45)*scale};
+  //缝份线（浅灰虚线）
+  ctx.strokeStyle="#888";
+  ctx.setLineDash([4,3]);
   ctx.beginPath();
-  ctx.moveTo(origin.x, origin.y);
-  ctx.quadraticCurveTo(ctrlFrontNeck.x, ctrlFrontNeck.y, {x:frontNeckWidth*scale, y:(backNeckDepth+frontNeckDepth)*scale}.x,{x:frontNeckWidth*scale, y:(backNeckDepth+frontNeckDepth)*scale}.y);
-  ctx.quadraticCurveTo(shoulderBack.x, shoulderBack.y, armholeBottom.x, armholeBottom.y);
-  ctx.lineTo(armholeBottom.x+seam*scale, armholeBottom.y);
-  ctx.lineTo(hemFront.x+seam*scale, hemFront.y+seam*scale);
-  ctx.lineTo(hemBack.x-seam*scale, hemBack.y+seam*scale);
+  ctx.moveTo(ox-seam,oy-seam);
+  ctx.bezierCurveTo(ox+neckR*0.8-seam, oy-neckR-seam, ox+halfBust-neckR*0.8+seam, oy-neckR-seam, ox+halfBust+seam, oy-seam);
+  ctx.lineTo(ox+halfBust+seam, oy+bl+seam);
+  ctx.bezierCurveTo(ox+halfBust+seam, oy+bl+neckR+seam, ox-seam, oy+bl+neckR+seam, ox-seam, oy+bl+seam);
   ctx.closePath();
   ctx.stroke();
-  ctx.fillText("宠物背心 · 前片", frontChestWidth*scale/2 -30, backLength*scale/2);
-  drawGrain(ctx, frontChestWidth*scale/2,10,40);
-  ctx.fillText("纱向",frontChestWidth*scale/2 -12,55);
-  ctx.restore();
+  ctx.setLineDash([]);
 }
 
-// ========== BJD连衣裙绘图｜FreeSewing比例缩放原型 ==========
+// ========== BJD连衣裙绘制 ==========
 function drawBjd(){
-  const canvas = document.getElementById('bjdCanvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById("bjdCanvas");
+  const ctx = canvas.getContext("2d");
+  const bust = Number(document.getElementById("bjdBust").value);
+  const waist = Number(document.getElementById("bjdWaist").value);
+  const len = Number(document.getElementById("bjdLen").value);
+  const shoulder = Number(document.getElementById("bjdShoulder").value);
+  const scale =20;
+  const seam = 0.5*scale;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = 12;
-  const seam = getSeam();
-  const REF_HEIGHT = 27;
+  drawRuler(ctx, canvas.width, canvas.height, scale);
 
-  const rawChest = Number(document.getElementById('bjdChest').value)/getUnitScale();
-  const rawWaist = Number(document.getElementById('bjdWaist').value)/getUnitScale();
-  const dollHeight = Number(document.getElementById('bjdHeight').value)/getUnitScale();
-  const rawShoulder = Number(document.getElementById('bjdShoulder').value)/getUnitScale();
-  const shrinkPct = Number(document.getElementById('bjdShrink').value);
+  const ox=100, oy=60;
+  const halfBust = bust/2*scale;
+  const halfWaist = waist/2*scale;
+  const sh = shoulder*scale;
+  const l = len*scale;
 
-  const scaleFactor = dollHeight / REF_HEIGHT;
-  const shrink = 1 + shrinkPct / 100;
-  const chest = rawChest * scaleFactor * shrink;
-  const waist = rawWaist * scaleFactor * shrink;
-  const shoulder = rawShoulder * scaleFactor;
-
-  const bodiceLength  = dollHeight * scaleFactor * 0.25;
-  const armholeDepth  = chest * 0.22;
-  const waistDart     = (chest - waist) * 0.35;
-  const shoulderSlope = (13 * Math.PI / 180) * 0.85;
-
-  ctx.save();
-  ctx.translate(60,60);
-  ctx.strokeStyle="#222";ctx.lineWidth=2;
-  const origin = {x:0,y:0};
-  const neckPoint = {x: chest *0.18 * scale, y:0};
-  const shoulderPt = {
-    x: shoulder * Math.cos(shoulderSlope)*scale,
-    y: shoulder * Math.sin(shoulderSlope)*scale
-  };
-  const waistSide = {x: waist*0.5 * scale, y: bodiceLength * scale};
-  const hemFront = {x: chest*0.5 * scale, y: (bodiceLength + bodiceLength*0.3)*scale};
-
-  //领口贝塞尔
-  const neckCtrl = {x: chest*0.12*scale, y: chest*0.08*scale};
+  ctx.strokeStyle="#000";
   ctx.beginPath();
-  ctx.moveTo(origin.x, origin.y);
-  ctx.quadraticCurveTo(neckCtrl.x, neckCtrl.y, neckPoint.x, neckPoint.y);
-  ctx.quadraticCurveTo(shoulderPt.x, shoulderPt.y, armholeDepth*scale, armholeDepth*scale);
-  ctx.lineTo(waistSide.x+seam*scale, waistSide.y);
-  ctx.lineTo(hemFront.x+seam*scale, hemFront.y+seam*scale);
-  ctx.lineTo(origin.x-seam*scale, hemFront.y+seam*scale);
+  ctx.moveTo(ox,oy);
+  ctx.lineTo(ox+sh, oy);
+  ctx.bezierCurveTo(ox+sh+halfBust*0.3, oy+halfBust*0.2, ox+sh+halfBust*0.5, oy+halfBust*0.4, ox+sh+halfBust*0.5, oy + l*0.4);
+  ctx.bezierCurveTo(ox+sh+halfWaist*0.5, oy+l*0.6, ox+sh*0.5, oy+l, ox, oy+l);
   ctx.closePath();
   ctx.stroke();
 
-  //腰省
-  const dartMid = {
-    x: (shoulderPt.x + waistSide.x)/2,
-    y: bodiceLength * 0.7 * scale
-  };
-  const dartHalf = waistDart /2 * scale;
+  //缝份虚线
+  ctx.strokeStyle="#888";
+  ctx.setLineDash([4,3]);
   ctx.beginPath();
-  ctx.moveTo(dartMid.x - dartHalf, dartMid.y - bodiceLength*0.15*scale);
-  ctx.lineTo(dartMid.x, dartMid.y);
-  ctx.lineTo(dartMid.x + dartHalf, dartMid.y - bodiceLength*0.15*scale);
+  ctx.moveTo(ox-seam,oy-seam);
+  ctx.lineTo(ox+sh+seam, oy-seam);
+  ctx.bezierCurveTo(ox+sh+halfBust*0.3+seam, oy+halfBust*0.2-seam, ox+sh+halfBust*0.5+seam, oy+halfBust*0.4, ox+sh+halfBust*0.5+seam, oy + l*0.4+seam);
+  ctx.bezierCurveTo(ox+sh+halfWaist*0.5+seam, oy+l*0.6+seam, ox+sh*0.5-seam, oy+l+seam, ox-seam, oy+l+seam);
+  ctx.closePath();
   ctx.stroke();
-
-  ctx.fillText("BJD连衣裙前片", chest*0.25*scale - 25, bodiceLength*scale/2);
-  drawGrain(ctx, chest*0.25*scale,10,35);
-  ctx.fillText("纱向",chest*0.25*scale -12,50);
-  ctx.restore();
+  ctx.setLineDash([]);
 }
 
-// ========== 女装上衣原型绘图｜FreeSewing女装板型专利公式 ==========
-function drawTop(){
-  const canvas = document.getElementById('topCanvas');
-  const ctx = canvas.getContext('2d');
+// ========== 女装上衣原型 ==========
+function drawWomen(){
+  const canvas = document.getElementById("womenCanvas");
+  const ctx = canvas.getContext("2d");
+  const bust = Number(document.getElementById("wBust").value);
+  const shoulder = Number(document.getElementById("wShoulder").value);
+  const len = Number(document.getElementById("wLen").value);
+  const backLen = Number(document.getElementById("wBackLen").value);
+  const scale=3;
+  const seam=1*scale;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = 4;
-  const seam = getSeam();
+  drawRuler(ctx, canvas.width, canvas.height, scale);
 
-  const chest = Number(document.getElementById('wChest').value)/getUnitScale();
-  const waist = Number(document.getElementById('wWaist').value)/getUnitScale();
-  const shoulder = Number(document.getElementById('wShoulder').value)/getUnitScale();
-  const hpsWaist = Number(document.getElementById('wHpsWaist').value)/getUnitScale();
-  const dartRatio = Number(document.getElementById('wBustDartRatio').value)/100;
+  const ox=120, oy=70;
+  const halfBust = bust/2*scale;
+  const sh = shoulder/2*scale;
+  const l = len*scale;
 
-  const bustDart = (chest - waist)*dartRatio;
-  const shoulderSlopeAngle = Math.atan2(2,5); //5:2 ≈21.8°
-  const shoulderDrop = shoulder * Math.sin(shoulderSlopeAngle);
-  const shoulderRun  = shoulder * Math.cos(shoulderSlopeAngle);
-
-  const armholeCircumference = chest *0.48;
-  const sleeveHeight  = armholeCircumference /3;
-  const sleeveWidth   = armholeCircumference /2;
-
-  const hps = {x:0,y:0};
-  const neckFront = {x: chest*0.15*scale, y: chest*0.06*scale};
-  const shoulderTip = {
-    x: (shoulderRun + chest*0.12)*scale,
-    y: shoulderDrop * scale
-  };
-  const armholeBottom = {x: chest*0.35*scale, y: hpsWaist*0.55*scale};
-  const waistFront = {x: chest*0.3*scale, y: hpsWaist*scale};
-  const waistSide = {x: (waist*0.45 + bustDart*0.3)*scale, y: hpsWaist*scale};
-
-  ctx.save();
-  ctx.translate(60,40);
-  ctx.strokeStyle="#222";ctx.lineWidth=2;
-
-  //前领窝
-  const neckCtrl = {x: chest*0.10*scale, y: chest*0.03*scale};
+  ctx.strokeStyle="#000";
   ctx.beginPath();
-  ctx.moveTo(hps.x,hps.y);
-  ctx.quadraticCurveTo(neckCtrl.x, neckCtrl.y, neckFront.x, neckFront.y);
-  //袖窿切线贝塞尔
-  const frontArmholeCtrl = {x: chest*0.35*scale, y: hpsWaist*0.2*scale};
-  ctx.quadraticCurveTo(frontArmholeCtrl.x, frontArmholeCtrl.y, armholeBottom.x, armholeBottom.y);
-  ctx.lineTo(waistSide.x+seam*scale, waistSide.y+seam*scale);
-  ctx.lineTo(-seam*scale, hpsWaist*scale+seam*scale);
+  ctx.moveTo(ox,oy);
+  ctx.lineTo(ox+sh, oy);
+  ctx.lineTo(ox+sh+halfBust*0.4, oy+backLen*0.6);
+  ctx.lineTo(ox+sh*0.8, oy+l);
+  ctx.lineTo(ox, oy+l);
   ctx.closePath();
   ctx.stroke();
 
-  //胸省
-  const dartCenterX = chest *0.22*scale;
-  const dartTop     = hpsWaist *0.35*scale;
-  const dartBottom  = hpsWaist *0.90*scale;
+  //缝份虚线
+  ctx.strokeStyle="#888";
+  ctx.setLineDash([4,3]);
   ctx.beginPath();
-  ctx.moveTo(dartCenterX, dartTop);
-  ctx.lineTo(dartCenterX - bustDart/2*scale, (dartTop+dartBottom)/2);
-  ctx.lineTo(dartCenterX, dartBottom);
-  ctx.lineTo(dartCenterX + bustDart/2*scale, (dartTop+dartBottom)/2);
+  ctx.moveTo(ox-seam,oy-seam);
+  ctx.lineTo(ox+sh+seam, oy-seam);
+  ctx.lineTo(ox+sh+halfBust*0.4+seam, oy+backLen*0.6+seam);
+  ctx.lineTo(ox+sh*0.8-seam, oy+l+seam);
+  ctx.lineTo(ox-seam, oy+l+seam);
   ctx.closePath();
   ctx.stroke();
-
-  ctx.fillText("女装上衣原型前片", chest*0.2*scale - 22, hpsWaist*scale/2);
-  drawGrain(ctx, chest*0.2*scale,10,45);
-  ctx.fillText("纱向",chest*0.2*scale -12,55);
-  ctx.restore();
+  ctx.setLineDash([]);
 }
 
-//PDF导出
+// ========= PDF导出函数 =========
 async function exportPetPdf(){
-  const canvas = document.getElementById('petCanvas');
+  const canvas = document.getElementById("petCanvas");
   const pdf = new jsPDF('p','mm','a4');
   const img = canvas.toDataURL("image/png");
   pdf.addImage(img, 'PNG',10,10,190,140);
   pdf.save("宠物背心_FreeSewing原型纸样.pdf");
 }
 async function exportBjdPdf(){
-  const canvas = document.getElementById('bjdCanvas');
+  const canvas = document.getElementById("bjdCanvas");
   const pdf = new jsPDF('p','mm','a4');
   const img = canvas.toDataURL("image/png");
   pdf.addImage(img, 'PNG',10,10,190,140);
   pdf.save("BJD连衣裙_FreeSewing原型纸样.pdf");
 }
-async function exportTopPdf(){
-  const canvas = document.getElementById('topCanvas');
+async function exportWomenPdf(){
+  const canvas = document.getElementById("womenCanvas");
   const pdf = new jsPDF('p','mm','a4');
   const img = canvas.toDataURL("image/png");
   pdf.addImage(img, 'PNG',10,10,190,140);
@@ -482,7 +252,7 @@ async function exportTopPdf(){
 }
 
 window.onload = function(){
-  drawPet();drawBjd();drawTop();
+  drawPet(); drawBjd(); drawWomen();
 }
 </script>
 </body>
